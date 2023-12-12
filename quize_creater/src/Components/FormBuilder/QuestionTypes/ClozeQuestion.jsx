@@ -1,27 +1,58 @@
+// components/ClozeQuestion.js
+import React, { useState } from 'react';
 
+const ClozeQuestion = () => {
+  const [question, setQuestion] = useState({
+    questionText: '',
+    blanks: [],
+  });
 
-import React from 'react';
+  const handleTextChange = (e) => {
+    setQuestion({
+      ...question,
+      questionText: e.target.value,
+    });
+  };
 
-const ClozeQuestion = ({ question, updateQuestion }) => {
+  const handleUnderlineClick = (start, end) => {
+    const text = question.questionText;
+    const newBlank = text.substring(start, end);
+    
+    setQuestion({
+      ...question,
+      blanks: [...question.blanks, { word: newBlank }],
+    });
+  };
+
   return (
-    <div className="mb-6">
-      <label className="block text-gray-700 text-sm font-bold mb-2">Cloze Question:</label>
-      <input
-        type="text"
-        className="border rounded w-full py-2 px-3 mb-2"
-        placeholder="Enter your cloze question"
-        value={question.text}
-        onChange={(e) => updateQuestion({ ...question, text: e.target.value })}
-      />
-
-      <label className="block text-gray-700 text-sm font-bold mb-2">Image URL:</label>
-      <input
-        type="text"
-        className="border rounded w-full py-2 px-3 mb-2"
-        placeholder="Enter image URL"
-        value={question.image}
-        onChange={(e) => updateQuestion({ ...question, image: e.target.value })}
-      />
+    <div>
+      <div>
+        <label htmlFor="questionText">Question Text:</label>
+        <textarea
+          id="questionText"
+          value={question.questionText}
+          onChange={handleTextChange}
+          className="mt-1 p-2 w-full border rounded-md"
+          rows="4"
+        />
+      </div>
+      <div className="mt-4">
+        <label>Fill-in-the-Blanks:</label>
+        <p className="text-gray-700">{question.questionText}</p>
+        <div className="flex flex-wrap">
+          {question.blanks.map((blank, index) => (
+            <span key={index} className="bg-yellow-200 p-1 rounded mx-1">
+              {blank.word}
+            </span>
+          ))}
+        </div>
+        <p className="text-gray-700 mt-2">
+          Click and drag to select a word in the text, then click the button to create a fill-in-the-blank.
+        </p>
+        <button onClick={() => handleUnderlineClick(5, 10)} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+          Create Blank
+        </button>
+      </div>
     </div>
   );
 };
