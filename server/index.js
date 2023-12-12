@@ -13,10 +13,16 @@
 
 const express = require("express")
 const connection =require("./db")
+const cors = require('cors');
+const formRoutes = require('./routes/forms');
+const responsesRouter = require('./routes/responses'); 
+
 const app =express();
-const UserRouter = require("./routes/UserRoutes")
+
+app.use(cors());
 app.use(express.json());
-app.use("/",UserRouter)
+app.use('/forms', formRoutes);
+app.use('/responses', responsesRouter);
 app.listen(8000,async()=>{
 try {
    await connection ;

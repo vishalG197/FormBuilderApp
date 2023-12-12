@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import CategorizeQuestion from './QuetionTypes/CategorizeQuestion';
-import ClozeQuestion from './QuetionTypes/ClozeQuestion';
-import ComprehensionQuestion from './QuetionTypes/ComprehensionQuestion';
+import CategorizeQuestion from './QuestionTypes/CategorizeQuestion';
+import ClozeQuestion from './QuestionTypes/ClozeQuestion';
+import ComprehensionQuestion from './QuestionTypes/ComprehensionQuestion';
 
 const FormBuilder = ({ onSubmit }) => {
   const [form, setForm] = useState({

@@ -1,9 +1,10 @@
 
 
 import React, { useState } from 'react';
-import FormBuilder from './components/FormBuilder/FormBuilder';
-import FormFill from './components/FormFill/FormFill';
-import FormPreview from './components/FormPreview/FormPreview';
+import FormBuilder from './components/FormBuilder';
+import FormFill from './FormFill/FormFill';
+import FormPreview from './FormPreview/FormPreview';
+// import './tailwind.css';
 
 function App() {
   const [selectedTab, setSelectedTab] = useState('builder');
@@ -16,6 +17,9 @@ function App() {
 
   return (
     <div className="container mx-auto p-4">
+      <h1 className="text-1xl font-bold text-red underline">
+      Hello world!
+    </h1>
       <h1 className="text-3xl font-bold mb-8">MERN Form Builder</h1>
 
       {/* Navigation Tabs */}
