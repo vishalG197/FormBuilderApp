@@ -22,7 +22,7 @@ const FormBuilder = () => {
 
     // Validate each question
     form.questions.forEach((question) => {
-      if (!question.data || !question.data.isValid()) {
+      if (!question.data ) {
         newErrors[question.id] = 'Invalid question data';
       }
     });
@@ -63,7 +63,7 @@ const FormBuilder = () => {
 
   const onSubmit = async (formData) => {
     try {
-      const response = await fetch('http://your-api-base-url/forms', {
+      const response = await fetch('http://localhost:8080/forms', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const FormBuilder = () => {
       onSubmit(form);
     }
   };
-
+console.log(form);
   return (
     <div className="container mx-auto p-4">
       {/* Header Image Section */}

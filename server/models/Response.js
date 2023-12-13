@@ -14,7 +14,7 @@ const responseSchema = new mongoose.Schema({
         required: true,
       },
       answer: {
-        type: mongoose.Schema.Types.Mixed, // You can adjust the type based on the nature of the answers
+        type: mongoose.Schema.Types.Mixed, 
         required: true,
       },
     },

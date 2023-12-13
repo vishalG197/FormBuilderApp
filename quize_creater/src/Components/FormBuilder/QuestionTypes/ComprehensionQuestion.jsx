@@ -1,7 +1,7 @@
 // components/ComprehensionQuestion.js
 import React, { useState } from 'react';
 
-const ComprehensionQuestion = () => {
+const ComprehensionQuestion = ({updateQuestion }) => {
   const [comprehension, setComprehension] = useState('');
   const [questions, setQuestions] = useState([]);
   const [options, setOptions] = useState([]);
@@ -49,17 +49,28 @@ const ComprehensionQuestion = () => {
 
     try {
       // Perform a POST request to save data (replace with actual API endpoint)
-      const response = await fetch('https://api.example.com/save-question', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(postData),
-      });
+      // const response = await fetch('https://api.example.com/save-question', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(postData),
+      // });
 
-      if (response.ok) {
+      if (questions) {
         // Data successfully saved
         console.log('Submitted Details:', postData);
+        updateQuestion({
+          type: 'comprehension',
+          data: {
+            passage:comprehension,
+            Questions: questions.map((question, index) => ({
+              question: question,
+              options: options[index],
+              correctOption: correctAnswers[index],
+            })),
+          },
+        })
         setSubmitted(true);
       } else {
         console.error('Failed to save data');

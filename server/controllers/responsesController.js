@@ -1,8 +1,8 @@
-// server/controllers/responsesController.js
+
 
 const Response = require('../models/Response');
 
-// Get all responses for a specific form
+
 const getResponsesForForm = async (req, res) => {
   const formId = req.params.formId;
 
@@ -14,7 +14,7 @@ const getResponsesForForm = async (req, res) => {
   }
 };
 
-// Create a new response
+
 const createResponse = async (req, res) => {
   const { formId, answers } = req.body;
 
@@ -31,7 +31,7 @@ const createResponse = async (req, res) => {
   }
 };
 
-// Get response by ID
+
 const getResponseById = async (req, res) => {
   const { id } = req.params;
 
@@ -47,7 +47,7 @@ const getResponseById = async (req, res) => {
   }
 };
 
-// Update response by ID
+
 const updateResponseById = async (req, res) => {
   const { id } = req.params;
   const { formId, answers } = req.body;
@@ -68,7 +68,7 @@ const updateResponseById = async (req, res) => {
   }
 };
 
-// Delete response by ID
+
 const deleteResponseById = async (req, res) => {
   const { id } = req.params;
 

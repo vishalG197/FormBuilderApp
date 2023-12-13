@@ -1,8 +1,7 @@
-// server/controllers/formsController.js
 
 const Form = require('../models/Form');
 
-// Get all forms
+
 const getAllForms = async (req, res) => {
   try {
     const forms = await Form.find();
@@ -12,7 +11,7 @@ const getAllForms = async (req, res) => {
   }
 };
 
-// Create a new form
+
 const createForm = async (req, res) => {
   const { headerImage, questions } = req.body;
 
@@ -21,7 +20,7 @@ const createForm = async (req, res) => {
       headerImage,
       questions,
     });
-
+console.log(newForm)
     const savedForm = await newForm.save();
     res.json(savedForm);
   } catch (error) {
@@ -29,7 +28,7 @@ const createForm = async (req, res) => {
   }
 };
 
-// Get form by ID
+
 const getFormById = async (req, res) => {
   const { id } = req.params;
 
@@ -45,7 +44,7 @@ const getFormById = async (req, res) => {
   }
 };
 
-// Update form by ID
+
 const updateFormById = async (req, res) => {
   const { id } = req.params;
   const { headerImage, questions } = req.body;
@@ -66,7 +65,7 @@ const updateFormById = async (req, res) => {
   }
 };
 
-// Delete form by ID
+
 const deleteFormById = async (req, res) => {
   const { id } = req.params;
 
