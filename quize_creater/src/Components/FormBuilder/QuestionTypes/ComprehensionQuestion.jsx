@@ -2,90 +2,136 @@
 import React, { useState } from 'react';
 
 const ComprehensionQuestion = () => {
-  const [question, setQuestion] = useState({
-    passage: '',
-    questions: [{ questionText: '', answer: '' }],
-  });
+  const [comprehension, setComprehension] = useState('');
+  const [questions, setQuestions] = useState([]);
+  const [options, setOptions] = useState([]);
+  const [correctAnswers, setCorrectAnswers] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
 
-  const handlePassageChange = (e) => {
-    setQuestion({
-      ...question,
-      passage: e.target.value,
-    });
+  const addQuestion = () => {
+    // Add a new question and corresponding options
+    setQuestions([...questions, '']);
+    setOptions([...options, ['', '', '', '']]);
+    setCorrectAnswers([...correctAnswers, '']);
   };
 
-  const handleQuestionChange = (index, field, e) => {
-    const updatedQuestions = [...question.questions];
-    updatedQuestions[index][field] = e.target.value;
-
-    setQuestion({
-      ...question,
-      questions: updatedQuestions,
-    });
+  const handleQuestionChange = (index, value) => {
+    // Update the question text
+    const updatedQuestions = [...questions];
+    updatedQuestions[index] = value;
+    setQuestions(updatedQuestions);
   };
 
-  const handleAddQuestion = () => {
-    setQuestion({
-      ...question,
-      questions: [...question.questions, { questionText: '', answer: '' }],
-    });
+  const handleOptionChange = (questionIndex, optionIndex, value) => {
+    // Update the option text
+    const updatedOptions = [...options];
+    updatedOptions[questionIndex][optionIndex] = value;
+    setOptions(updatedOptions);
   };
 
-  const handleRemoveQuestion = (index) => {
-    const updatedQuestions = [...question.questions];
-    updatedQuestions.splice(index, 1);
+  const handleCorrectAnswerChange = (questionIndex, value) => {
+    // Update the correct answer for a question
+    const updatedCorrectAnswers = [...correctAnswers];
+    updatedCorrectAnswers[questionIndex] = value;
+    setCorrectAnswers(updatedCorrectAnswers);
+  };
 
-    setQuestion({
-      ...question,
-      questions: updatedQuestions,
-    });
+  const handleSubmit = async () => {
+    // Construct the data object for the POST request
+    const postData = {
+      comprehension,
+      questions: questions.map((question, index) => ({
+        text: question,
+        options: options[index],
+        correctAnswer: correctAnswers[index],
+      })),
+    };
+
+    try {
+      // Perform a POST request to save data (replace with actual API endpoint)
+      const response = await fetch('https://api.example.com/save-question', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (response.ok) {
+        // Data successfully saved
+        console.log('Submitted Details:', postData);
+        setSubmitted(true);
+      } else {
+        console.error('Failed to save data');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
     <div>
-      <div>
-        <label htmlFor="passage">Passage:</label>
-        <textarea
-          id="passage"
-          value={question.passage}
-          onChange={handlePassageChange}
-          className="mt-1 p-2 w-full border rounded-md"
-          rows="4"
-        />
+      <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Quiz Builder</h1>
+      <div className="mb-4">
+        <label className="block">
+          Comprehension:
+          <input
+            type="text"
+            value={comprehension}
+            onChange={(e) => setComprehension(e.target.value)}
+            className="mt-1 p-2 w-full border rounded-md"
+          />
+        </label>
       </div>
-      <div className="mt-4">
-        <label>Questions:</label>
-        {question.questions.map((q, index) => (
-          <div key={index} className="mt-2">
-            <div>
-              <label htmlFor={`questionText${index}`}>Question Text:</label>
+      <div>
+        {questions.map((question, questionIndex) => (
+          <div key={questionIndex} className="mb-4">
+            <label className="block">
+              Question {questionIndex + 1}:
               <input
                 type="text"
-                id={`questionText${index}`}
-                value={q.questionText}
-                onChange={(e) => handleQuestionChange(index, 'questionText', e)}
-                className="p-2 border rounded-md w-full"
+                value={question}
+                onChange={(e) => handleQuestionChange(questionIndex, e.target.value)}
+                className="mt-1 p-2 w-full border rounded-md"
               />
-            </div>
-            <div className="mt-2">
-              <label htmlFor={`answer${index}`}>Answer:</label>
-              <input
-                type="text"
-                id={`answer${index}`}
-                value={q.answer}
-                onChange={(e) => handleQuestionChange(index, 'answer', e)}
-                className="p-2 border rounded-md w-full"
-              />
-            </div>
-            <button onClick={() => handleRemoveQuestion(index)} className="mt-2 text-red-500">
-              Remove
-            </button>
+            </label>
+            <br />
+            {options[questionIndex].map((option, optionIndex) => (
+              <label key={optionIndex} className="block">
+                <input
+                  type="radio"
+                  name={`question${questionIndex}`}
+                  value={option}
+                  checked={correctAnswers[questionIndex] === option}
+                  onChange={() => handleCorrectAnswerChange(questionIndex, option)}
+                  className="mr-2"
+                />
+                Option {optionIndex + 1}:
+                <input
+                  type="text"
+                  value={option}
+                  onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
+                  className="mt-1 p-2 border rounded-md"
+                />
+              </label>
+            ))}
+            <br />
           </div>
         ))}
-        <button onClick={handleAddQuestion} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+      </div>
+      <div className="mb-4">
+        <button onClick={addQuestion} className="bg-blue-500 text-white px-4 py-2 rounded">
           Add Question
         </button>
       </div>
+      <div>
+        <button onClick={handleSubmit} disabled={submitted} className="bg-green-500 text-white px-4 py-2 rounded">
+          Submit
+        </button>
+      </div>
+      </div>
+      {submitted && <p>Your details are submitted.</p>}
     </div>
   );
 };

@@ -31,7 +31,64 @@ const createResponse = async (req, res) => {
   }
 };
 
+// Get response by ID
+const getResponseById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const response = await Response.findById(id);
+    if (!response) {
+      return res.status(404).json({ error: 'Response not found' });
+    }
+
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Update response by ID
+const updateResponseById = async (req, res) => {
+  const { id } = req.params;
+  const { formId, answers } = req.body;
+
+  try {
+    const response = await Response.findById(id);
+    if (!response) {
+      return res.status(404).json({ error: 'Response not found' });
+    }
+
+    response.formId = formId;
+    response.answers = answers;
+
+    const updatedResponse = await response.save();
+    res.json(updatedResponse);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Delete response by ID
+const deleteResponseById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const response = await Response.findById(id);
+    if (!response) {
+      return res.status(404).json({ error: 'Response not found' });
+    }
+
+    await response.remove();
+    res.json({ message: 'Response deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   getResponsesForForm,
   createResponse,
+  getResponseById,
+  updateResponseById,
+  deleteResponseById,
 };

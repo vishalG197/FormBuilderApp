@@ -1,5 +1,4 @@
 // server/models/Response.js
-
 const mongoose = require('mongoose');
 
 const responseSchema = new mongoose.Schema({
@@ -15,7 +14,7 @@ const responseSchema = new mongoose.Schema({
         required: true,
       },
       answer: {
-        type: String,
+        type: mongoose.Schema.Types.Mixed, // You can adjust the type based on the nature of the answers
         required: true,
       },
     },

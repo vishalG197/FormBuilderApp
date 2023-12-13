@@ -1,7 +1,33 @@
 // server/models/Form.js
-
 const mongoose = require('mongoose');
 
+// Define schema for MCQ question type
+const mcqQuestionSchema = new mongoose.Schema({
+  question: String,
+  options: [String],
+  correctOption: String,
+});
+
+// Define schema for Categorize question type
+const categorizeQuestionSchema = new mongoose.Schema({
+   Description: String,
+  Question: [{category: String, items: [String]}],
+  
+});
+
+// Define schema for Cloze question type
+const clozeQuestionSchema = new mongoose.Schema({
+  text: String,
+  blanks: [String],
+});
+
+// Define schema for Comprehension question type
+const comprehensionQuestionSchema = new mongoose.Schema({
+  passage: String,
+  mcqQuestions: [mcqQuestionSchema],
+});
+
+// Define the main form schema
 const formSchema = new mongoose.Schema({
   headerImage: {
     type: String,
@@ -16,14 +42,12 @@ const formSchema = new mongoose.Schema({
       type: {
         type: String,
         required: true,
+        enum: ['categorize', 'cloze', 'comprehension'],
       },
-      text: {
-        type: String,
+     
+      data: {
+        type: mongoose.Schema.Types.Mixed,
         required: true,
-      },
-      image: {
-        type: String,
-        default: '',
       },
     },
   ],

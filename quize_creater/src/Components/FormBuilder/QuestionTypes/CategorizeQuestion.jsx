@@ -1,12 +1,16 @@
 // components/CategoryQuestion.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
-const CategoryQuestion = () => {
+const CategoryQuestion = ({updateQuestion}) => {
   const [question, setQuestion] = useState({
     description: '',
-    categories: [{ title: 'Category 1', items: [] }],
+    categories: [{ category: 'Category 1', items: [] }],
   });
+
+  useEffect(() => {
+    updateQuestion(question);
+  }, [question]);
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
@@ -33,7 +37,10 @@ const CategoryQuestion = () => {
   const handleAddCategory = () => {
     setQuestion({
       ...question,
-      categories: [...question.categories, { title: `Category ${question.categories.length + 1}`, items: [] }],
+      categories: [
+        ...question.categories,
+        { category: `Category ${question.categories.length + 1}`, items: [] },
+      ],
     });
   };
 

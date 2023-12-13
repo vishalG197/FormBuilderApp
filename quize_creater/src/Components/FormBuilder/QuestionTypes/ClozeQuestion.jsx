@@ -1,4 +1,3 @@
-// components/ClozeQuestion.js
 import React, { useState } from 'react';
 
 const ClozeQuestion = () => {
@@ -17,7 +16,7 @@ const ClozeQuestion = () => {
   const handleUnderlineClick = (start, end) => {
     const text = question.questionText;
     const newBlank = text.substring(start, end);
-    
+
     setQuestion({
       ...question,
       blanks: [...question.blanks, { word: newBlank }],
@@ -25,23 +24,23 @@ const ClozeQuestion = () => {
   };
 
   return (
-    <div>
+    <div className="container mx-auto p-4">
       <div>
         <label htmlFor="questionText">Question Text:</label>
         <textarea
           id="questionText"
           value={question.questionText}
           onChange={handleTextChange}
-          className="mt-1 p-2 w-full border rounded-md"
+          className="mt-1 p-2 w-full border rounded-md resize-none"
           rows="4"
         />
       </div>
       <div className="mt-4">
         <label>Fill-in-the-Blanks:</label>
-        <p className="text-gray-700">{question.questionText}</p>
+        <p className="text-gray-700 whitespace-pre-wrap">{question.questionText}</p>
         <div className="flex flex-wrap">
           {question.blanks.map((blank, index) => (
-            <span key={index} className="bg-yellow-200 p-1 rounded mx-1">
+            <span key={index} className="bg-yellow-200 p-1 rounded mx-1 my-1">
               {blank.word}
             </span>
           ))}
@@ -49,7 +48,10 @@ const ClozeQuestion = () => {
         <p className="text-gray-700 mt-2">
           Click and drag to select a word in the text, then click the button to create a fill-in-the-blank.
         </p>
-        <button onClick={() => handleUnderlineClick(5, 10)} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+        <button
+          onClick={() => handleUnderlineClick(5, 10)}
+          className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue"
+        >
           Create Blank
         </button>
       </div>

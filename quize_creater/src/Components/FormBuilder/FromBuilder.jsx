@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import CategorizeQuestion from './QuestionTypes/CategorizeQuestion';
 import ClozeQuestion from './QuestionTypes/ClozeQuestion';
 import ComprehensionQuestion from './QuestionTypes/ComprehensionQuestion';
 
-const FormBuilder = ({ onSubmit }) => {
+const FormBuilder = () => {
   const [form, setForm] = useState({
     headerImage: '',
     questions: [],
@@ -12,6 +11,7 @@ const FormBuilder = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -22,8 +22,8 @@ const FormBuilder = ({ onSubmit }) => {
 
     // Validate each question
     form.questions.forEach((question) => {
-      if (!question.text.trim()) {
-        newErrors[question.id] = 'Question text cannot be empty';
+      if (!question.data || !question.data.isValid()) {
+        newErrors[question.id] = 'Invalid question data';
       }
     });
 
@@ -36,8 +36,7 @@ const FormBuilder = ({ onSubmit }) => {
     const newQuestion = {
       id: form.questions.length + 1,
       type,
-      text: '',
-      image: '',
+      data: {},
     };
 
     setForm((prevForm) => ({
@@ -62,7 +61,35 @@ const FormBuilder = ({ onSubmit }) => {
     }));
   };
 
-  const handleSubmit = async() => {
+  const onSubmit = async (formData) => {
+    try {
+      const response = await fetch('http://your-api-base-url/forms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log('Form data submitted successfully!');
+        // Handle success, such as showing a success message or redirecting
+        setSuccessMessage('Form submitted successfully!');
+      } else {
+        console.error('Failed to submit form data');
+        // Handle failure, such as showing an error message
+      }
+    } catch (error) {
+      console.error('Error submitting form data:', error);
+      // Handle network or other errors
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+
     // Validate the form before submitting
     const isValid = validateForm();
 
@@ -71,14 +98,11 @@ const FormBuilder = ({ onSubmit }) => {
 
       // Send the form data to the backend or perform other actions
       onSubmit(form);
-      
-      setIsLoading(false);
-      setSuccessMessage('Form submitted successfully!');
     }
   };
 
   return (
-    <div>
+    <div className="container mx-auto p-4">
       {/* Header Image Section */}
       <div className="mb-8">
         <label className="block text-gray-700 text-sm font-bold mb-2">Header Image URL:</label>
@@ -115,9 +139,7 @@ const FormBuilder = ({ onSubmit }) => {
             <QuestionComponent
               key={question.id}
               question={question}
-              updateQuestion={(updatedQuestion) =>
-                updateQuestion(question.id, updatedQuestion)
-              }
+              updateQuestion={(updatedQuestion) => updateQuestion(question.id, updatedQuestion)}
               error={errors[question.id]}
             />
           );
@@ -145,15 +167,13 @@ const FormBuilder = ({ onSubmit }) => {
           Add Comprehension Question
         </button>
       </div>
-      {isLoading && (
-        <div className="text-blue-500 mt-2">
-          Loading...
-        </div>
-      )}
-{/* Success Message */}
-{successMessage && (
-        <div className="text-green-600 mt-2">{successMessage}</div>
-      )}
+      
+      {/* Loading Message */}
+      {isLoading && <div className="text-blue-500 mt-2">Loading...</div>}
+
+      {/* Success Message */}
+      {successMessage && <div className="text-green-600 mt-2">{successMessage}</div>}
+
       {/* Submit Button */}
       <div className="mt-4">
         <button
