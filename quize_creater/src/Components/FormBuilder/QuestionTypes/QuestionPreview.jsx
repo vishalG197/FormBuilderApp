@@ -1,64 +1,165 @@
-// FormBuilder.js
-import React, { useState } from 'react';
-import CategorizeQuestion from './QuestionTypes/CategorizeQuestion';
-import ClozeQuestion from './QuestionTypes/ClozeQuestion';
-import ComprehensionQuestion from './QuestionTypes/ComprehensionQuestion';
-import QuestionPreview from './QuestionTypes/QuestionPreview';
 
-const FormBuilder = () => {
-  const [selectedQuestionType, setSelectedQuestionType] = useState('categorize');
-  const [selectedQuestionData, setSelectedQuestionData] = useState({
-    categories: ['Category 1', 'Category 2'],
-    items: ['Item 1', 'Item 2', 'Item 3'],
-    // Add additional data properties for other question types
+import React from "react";
+import { useDrag, useDrop } from "react-dnd";
+
+const DraggableItem = ({ item, index, moveItem, categoryIndex }) => {
+  const [, drag] = useDrag({
+    type: "CATEGORIZE_ITEM",
+    item: { index, categoryIndex },
   });
 
-  const handleQuestionTypeChange = (questionType) => {
-    // Handle the change in question type
-    // Fetch or set data based on the selected question type
-    // For simplicity, let's set default data for the Categorize question
-    setSelectedQuestionData({
-      categories: ['Category 1', 'Category 2'],
-      items: ['Item 1', 'Item 2', 'Item 3'],
-    });
-    setSelectedQuestionType(questionType);
+  return (
+    <div
+      ref={drag}
+      className="cursor-pointer p-2 border border-gray-300 rounded-md m-1 bg-white"
+    >
+      {item}
+    </div>
+  );
+};
+
+const DroppableArea = ({ items, onDrop, categoryIndex }) => {
+  const [, drop] = useDrop({
+    accept: "CATEGORIZE_ITEM",
+    drop: (item) => onDrop(item, categoryIndex),
+  });
+
+  return (
+    <div ref={drop} className="border border-gray-300 rounded-md p-2 h-20">
+      {items}
+    </div>
+  );
+};
+
+const CategorizeQuestionPreview = ({ question }) => {
+  const [selectedItems, setSelectedItems] = React.useState(
+    Array(question.data.Question?.length).fill([])
+  );
+
+  const handleDrop = (item, categoryIndex) => {
+    const newSelectedItems = [...selectedItems];
+    newSelectedItems[categoryIndex] = [
+      ...newSelectedItems[categoryIndex],
+      item.index,
+    ];
+    setSelectedItems(newSelectedItems);
+  };
+
+  const handleRemoveItem = (categoryIndex, itemIndex) => {
+    const newSelectedItems = [...selectedItems];
+    newSelectedItems[categoryIndex] = newSelectedItems[categoryIndex].filter(
+      (index) => index !== itemIndex
+    );
+    setSelectedItems(newSelectedItems);
   };
 
   return (
-    <div className="flex">
-      <div className="w-1/2 pr-4">
-        {/* Question creation components */}
-        {selectedQuestionType === 'categorize' && <CategorizeQuestion />}
-        {selectedQuestionType === 'cloze' && <ClozeQuestion />}
-        {selectedQuestionType === 'comprehension' && <ComprehensionQuestion />}
-      </div>
-      <div className="w-1/2">
-        {/* Question type selector */}
-        <div className="mb-4">
-          <label htmlFor="questionType" className="block text-sm font-medium text-gray-700">
-            Select Question Type:
-          </label>
-          <select
-            id="questionType"
-            value={selectedQuestionType}
-            onChange={(e) => handleQuestionTypeChange(e.target.value)}
-            className="mt-1 p-2 w-full border rounded-md"
-          >
-            <option value="categorize">Categorize</option>
-            <option value="cloze">Cloze</option>
-            <option value="comprehension">Comprehension</option>
-            {/* Add options for other question types if needed */}
-          </select>
-        </div>
+    <div>
+      <h1>Categorize Question</h1>
+      <p className="text-lg text-align-left font-bold mb-2">
+        Q.{question.data.Description}
+      </p>
 
-        {/* Question preview */}
-        <QuestionPreview
-          questionType={selectedQuestionType}
-          data={selectedQuestionData}
-        />
+      <div className="flex">
+        {question.data.Question?.map((category, categoryIndex) => (
+          <div key={categoryIndex} className="flex flex-col items-center mr-8">
+            {category.items?.map((item, itemIndex) => (
+              <DraggableItem
+                key={itemIndex}
+                item={item}
+                index={itemIndex}
+                moveItem={() => {}}
+                categoryIndex={categoryIndex}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 flex">
+        {question.data.Question?.map((category, categoryIndex) => (
+          <DroppableArea
+            key={categoryIndex}
+            items={selectedItems[categoryIndex]?.map((itemIndex) => (
+              <div
+                key={itemIndex}
+                className="p-2 border border-gray-300 rounded-md m-1 bg-blue-100 cursor-pointer"
+                onClick={() => handleRemoveItem(categoryIndex, itemIndex)}
+              >
+                <p className="font-bold mb-2">{category.category}</p>
+                {category.items[itemIndex]}
+              </div>
+            ))}
+            onDrop={handleDrop}
+            categoryIndex={categoryIndex}
+          />
+        ))}
       </div>
     </div>
   );
 };
 
-export default FormBuilder;
+
+const ClozeQuestionPreview = ({ question }) => (
+  <div>
+    <p className="text-lg font-bold">Cloze Question</p>
+    <h1>Q. {question.data.text}</h1>
+    <ul>
+      {question.data.blanks?.map((blank, index) => (
+        <li key={index}>Blank {index + 1}</li>
+      ))}
+    </ul>
+  </div>
+);
+
+
+const ComprehensionQuestionPreview = ({ question }) => (
+  <div>
+    <p className="text-lg font-bold">Comprehension Question</p>
+    <h3 className="text-purple-500">read passage carefully</h3>
+    <p>{question.data.passage}</p>
+    <ul>
+      {question.data.Questions?.map((mcq, index) => (
+        <li key={index}>
+          <p>Q.{mcq.question}</p>
+          <ul>
+            {mcq.options?.map((option, optionIndex) => (
+              <li key={optionIndex}>
+                {optionIndex + 1}. {option}{" "}
+                {mcq.correctOption === option && (
+                  <span className="text-green-500">*</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+const FormPreview = ({ form }) => (
+  <div className="container mx-auto p-4">
+    
+    {form.headerImage && (
+      <img src={form.headerImage} alt="Header" className="mb-4" />
+    )}
+
+   
+    {form.questions?.map((question, index) => (
+      <div key={index} className="mb-8">
+        {question.type === "categorize" && (
+          <CategorizeQuestionPreview question={question} />
+        )}
+        {question.type === "cloze" && (
+          <ClozeQuestionPreview question={question} />
+        )}
+        {question.type === "comprehension" && (
+          <ComprehensionQuestionPreview question={question} />
+        )}
+      </div>
+    ))}
+  </div>
+);
+
+export default FormPreview;

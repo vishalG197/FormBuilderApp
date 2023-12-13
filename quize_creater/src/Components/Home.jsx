@@ -18,9 +18,9 @@ const Home = () => {
             Create Quiz
           </button>
         </Link>
-        <Link to="/history">
+        <Link to="/quize">
           <button className="bg-purple-500 text-white my-8 font-bold py-4 px-8 w-full md:w-1/2 rounded">
-            History
+            Solve Quiz
           </button>
         </Link>
 

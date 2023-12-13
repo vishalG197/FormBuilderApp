@@ -1,103 +1,157 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+
+import React, { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+let data={
+  headerImage: 'https://tse2.mm.bing.net/th?id=OIP.JAQ4rlCwbALiX8vooija7QHaEK&pid=Api&P=0&h=220',
+  questions: [
+    {
+      id: 1,
+      type: 'categorize',
+      data: {
+        Description: 'Categorize Questions Example',
+        Question: [
+          { category: 'Category 1', items: ['Item 1', 'Item 2'] },
+          { category: 'Category 2', items: ['Item 3', 'Item 4'] },
+        ],
+      },
+    },
+    {
+      id: 2,
+      type: 'cloze',
+      data: {
+        text: 'This is a cloze question example with ___ blanks. Fill in the blanks.',
+        blanks: ['blank1', 'blank2'],
+      },
+    },
+    {
+      id: 3,
+      type: 'comprehension',
+      data: {
+        passage: 'This is a comprehension passage.',
+        Questions: [
+          {
+            question: 'What is the capital of Country X?',
+            options: ['Option A', 'Option B', 'Option C'],
+            correctOption: 'Option B',
+          },
+          // Add more MCQ questions as needed
+        ],
+      },
+    },
+  ],
+};
+
 
 const FormFill = () => {
-  const [form, setForm] = useState({});
-  const [responses, setResponses] = useState({});
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const { formId } = useParams();
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => {
-    const fetchFormDetails = async () => {
-      try {
-        const response = await fetch(`http://your-api-base-url/forms/${formId}`);
-        if (response.ok) {
-          const formData = await response.json();
-          setForm(formData);
-        } else {
-          console.error('Failed to fetch form details');
-        }
-      } catch (error) {
-        console.error('Error fetching form details:', error);
-      }
-    };
-
-    fetchFormDetails();
-  }, [formId]);
-
-  const handleInputChange = (questionId, value) => {
-    setResponses((prevResponses) => ({
-      ...prevResponses,
-      [questionId]: value,
-    }));
+  const handleAnswer = (questionId, answer) => {
+    setAnswers((prevAnswers) => ({ ...prevAnswers, [questionId]: answer }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch(`http://your-api-base-url/responses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          formId: formId,
-          answers: responses,
-        }),
-      });
+  const handleSubmit = () => {
+    // Perform the post request with the answers here
+    // For simplicity, let's just log the answers to the console
+    console.log('Submitted Answers:', answers);
 
-      if (response.ok) {
-        setSubmitSuccess(true);
-      } else {
-        console.error('Failed to submit responses');
-      }
-    } catch (error) {
-      console.error('Error submitting responses:', error);
-    }
+    // Display submission success message
+    toast.success('Quiz submitted successfully!', {
+      position: 'top-center',
+      autoClose: 3000, // Auto close the toast after 3 seconds
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+
+    // Set the submitted state to true
+    setSubmitted(true);
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-4 border rounded bg-white">
-      {/* Header Image */}
-      {form.headerImage && <img src={form.headerImage} alt="Header" className="mb-4 rounded" />}
+    <div className="container mx-auto mt-8 p-4">
+      <img src={data.headerImage} alt="Header" className="mb-8 w-full align-middle ml-77 rounded-lg shadow-lg" />
+<h1 className="text-3xl font-bold">Quiz-2.0</h1>
+      {data.questions.map((question) => (
+        <div key={question.id} className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">{question.data.Description}</h2>
 
-      {/* Form Questions Section */}
-      {form.questions.map((question) => (
-        <div key={question.id} className="mb-6">
-          {/* Display question text */}
-          <p className="text-lg font-bold">{question.text}</p>
+          {question.type === 'categorize' && (
+            <div>
+              <p className="mb-4">Q.{question.data.Description}</p>
+              {question.data.Question.map((category, index) => (
+                <div key={index} className="mb-4">
+                  <p className="font-semibold mb-2">{category.category}</p>
+                  {/* Render items for each category */}
+                  {category.items.map((item, i) => (
+                    <label key={i} className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        className="form-checkbox text-blue-500"
+                        onChange={() => handleAnswer(question.id, item)}
+                      />
+                      <span className="ml-2">{item}</span>
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
 
-          {/* Display question image if available */}
-          {question.image && <img src={question.image} alt="Question" className="mb-2 rounded" />}
+          {question.type === 'cloze' && (
+            <div>
+              <p className="mb-4">Q.{question.data.text}</p>
+              {question.data.blanks.map((blank, index) => (
+                <div key={index} className="mb-4">
+                  <input
+                    type="text"
+                    placeholder={`Enter ${blank}`}
+                    className="border rounded p-2 w-full"
+                    onChange={(e) => handleAnswer(question.id, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-          {/* Input field based on question type */}
-          {question.type === 'comprehension' ? (
-            <textarea
-              className="border rounded w-full py-2 px-3 mb-2"
-              placeholder="Your answer here..."
-              onChange={(e) => handleInputChange(question.id, e.target.value)}
-            />
-          ) : (
-            <input
-              type="text"
-              className="border rounded w-full py-2 px-3 mb-2"
-              placeholder="Your answer here..."
-              onChange={(e) => handleInputChange(question.id, e.target.value)}
-            />
+          {question.type === 'comprehension' && (
+            <div>
+              <p className="mb-4">Passage:-{question.data.passage}</p>
+              {question.data.Questions.map((mcq, index) => (
+                <div key={index} className="mb-4">
+                  <p className="font-semibold mb-2">{mcq.question}</p>
+                  {mcq.options.map((option, i) => (
+                    <label key={i} className="block mb-2">
+                      <input
+                        type="radio"
+                        name={`question_${question.id}`}
+                        className="form-radio text-blue-500"
+                        onChange={() => handleAnswer(question.id, option)}
+                      />
+                      <span className="ml-2">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       ))}
 
-      {/* Submit Button */}
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        onClick={handleSubmit}
-      >
-        Submit
-      </button>
+      {!submitted && (
+        <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+          Submit
+        </button>
+      )}
 
-      {/* Success Message */}
-      {submitSuccess && (
-        <p className="text-green-600 mt-4">Form submitted successfully! Thank you.</p>
+      <ToastContainer />
+
+      {submitted && (
+        <p className="mt-4 text-green-500 text-center">
+          Thank you for submitting the quiz! 🎉
+        </p>
       )}
     </div>
   );
