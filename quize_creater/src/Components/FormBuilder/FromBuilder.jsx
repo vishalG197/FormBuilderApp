@@ -3,6 +3,7 @@ import CategorizeQuestion from "./QuestionTypes/CategorizeQuestion";
 import ClozeQuestion from "./QuestionTypes/ClozeQuestion";
 import ComprehensionQuestion from "./QuestionTypes/ComprehensionQuestion";
 import FormPreview from "./QuestionPreview";
+import { useDropzone } from "react-dropzone";
 
 const FormBuilder = () => {
   const [form, setForm] = useState({
@@ -14,6 +15,14 @@ const FormBuilder = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedQuestionType, setSelectedQuestionType] = useState("");
+  const onDrop = (acceptedFiles) => {
+    // Assuming only one file is accepted, you can modify accordingly
+    const imageFile = acceptedFiles[0];
+    const imageUrl = URL.createObjectURL(imageFile);
+    updateHeaderImage(imageUrl);
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const validateForm = () => {
     const newErrors = {};
@@ -69,10 +78,19 @@ const FormBuilder = () => {
     }));
   };
 
-  const onSubmit = async (formData) => {
+  const onSubmit = async (form) => {
     try {
       // Your form submission logic here...
-
+      const response = await fetch("https://quize-5b24.onrender.com/forms", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+         
+        },
+        
+         body: JSON.stringify(form),
+      });
+  console.log(response.ok)
       setSuccessMessage("Form submitted successfully!");
     } catch (error) {
       console.error("Error submitting form data:", error);
@@ -92,7 +110,7 @@ const FormBuilder = () => {
       onSubmit(form);
     }
   };
-
+console.log(form)
   return (
     <div className="container mx-auto p-4">
       <div className="mb-8">
@@ -115,17 +133,29 @@ const FormBuilder = () => {
 
       <div className="mb-8">
         <label className="block text-gray-700 text-sm font-bold mb-2">
-          Header Image URL:
+          Header Image:
         </label>
-        <input
-          type="text"
-          className={`border rounded w-full py-2 px-3 ${
-            errors.headerImage ? "border-red-500" : ""
+        <div
+          {...getRootProps()}
+          className={`border rounded w-full py-2 px-3 text-center cursor-pointer ${
+            isDragActive ? "border-blue-500" : ""
           }`}
-          placeholder="Enter URL"
-          value={form.headerImage}
-          onChange={(e) => updateHeaderImage(e.target.value)}
-        />
+        >
+          <input {...getInputProps()} />
+          {form.headerImage ? (
+            <img
+              src={form.headerImage}
+              alt="Header"
+              className="max-w-full max-h-40 object-cover"
+            />
+          ) : (
+            <p>
+              {isDragActive
+                ? "Drop the image here"
+                : "Drag 'n' drop an image here, or click to select one"}
+            </p>
+          )}
+        </div>
         {errors.headerImage && (
           <p className="text-red-500 text-sm mt-1">{errors.headerImage}</p>
         )}

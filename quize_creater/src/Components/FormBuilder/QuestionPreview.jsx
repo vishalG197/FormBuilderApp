@@ -183,18 +183,26 @@ const DraggableItem = ({ item, index, moveItem, categoryIndex }) => {
   );
 };
 
-const DroppableArea = ({ items, onDrop, categoryIndex }) => {
-  const [, drop] = useDrop({
-    accept: "CATEGORIZE_ITEM",
-    drop: (item) => onDrop(item, categoryIndex),
-  });
-
-  return (
-    <div ref={drop} className="border border-gray-300 rounded-md p-2 h-20">
-      {items}
-    </div>
-  );
-};
+const DroppableArea = ({ items, onDrop, categoryIndex, categoryName }) => {
+   const [, drop] = useDrop({
+     accept: "CATEGORIZE_ITEM",
+     drop: (item) => onDrop(item, categoryIndex),
+   });
+ 
+   return (
+     <div ref={drop} className="border border-gray-300 rounded-md p-2 h-20">
+       {items?.length === 0 ? (
+         <div className="text-center text-gray-500">
+           <p className="font-bold">{categoryName}</p>
+           (Drag items here)
+         </div>
+       ) : (
+         items
+       )}
+     </div>
+   );
+ };
+ 
 
 const CategorizeQuestion = ({ question }) => {
   const [selectedItems, setSelectedItems] = useState(
@@ -267,14 +275,15 @@ const CategorizeQuestion = ({ question }) => {
 
 
 
-const ClozeQuestion = ({ question, updateQuestion, error }) => {
+const ClozeQuestion = ({ question }) => {
   // Define function to handle word drag and drop
+  let [update,setUpadate]=useState()
   const handleWordDrop = (word) => {
     // Remove the dropped word from the blanks array
     const updatedBlanks = question.data.blanks.filter((blank) => blank !== word);
 
     // Update the question data
-    updateQuestion({
+    setUpadate({
       ...question,
       data: { blanks: updatedBlanks },
     });
@@ -283,11 +292,11 @@ const ClozeQuestion = ({ question, updateQuestion, error }) => {
   return (
     <div className="my-4 p-4 border rounded shadow">
       <h4 className="text-lg font-bold mb-2">Cloze Question</h4>
-      {error && <p className="text-red-500 mb-2">{error}</p>}
+    
 
       <div>
         {/* Display draggable words */}
-        {question.data.words?.map((word) => (
+        {question.blanks?.map((word) => (
           <div
             key={word}
             className="border p-2 rounded cursor-move inline-block mx-2"
@@ -301,7 +310,7 @@ const ClozeQuestion = ({ question, updateQuestion, error }) => {
 
       <div className="mt-4">
         {/* Display sentence with blank spaces */}
-        {question.data.sentence?.map((part, index) =>
+        {question.text?.map((part, index) =>
           question.data.blanks.includes(index) ? (
             <div
               key={index}
@@ -323,11 +332,12 @@ const ClozeQuestion = ({ question, updateQuestion, error }) => {
 
 
 
-const ComprehensionQuestion = ({ question, updateQuestion, error }) => {
+const ComprehensionQuestion = ({ question }) => {
+   let [update,setUpadate]=useState()
   return (
     <div className="my-4 p-4 border rounded shadow">
       <h4 className="text-lg font-bold mb-2">Comprehension Question</h4>
-      {error && <p className="text-red-500 mb-2">{error}</p>}
+     
       <p>{question.data.passage}</p>
      <ul>
        {question.data.Questions?.map((mcq, index) => (

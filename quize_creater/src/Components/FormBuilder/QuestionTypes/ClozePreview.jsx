@@ -17,6 +17,7 @@ const ClozeQuestion = ({ question, updateQuestion, error }) => {
       i === index ? itemId : blank
     );
 
+    // Corrected: Call updateQuestion with the updated blanks directly
     updateQuestion({ ...question, data: { blanks: updatedBlanks } });
   };
 
@@ -35,6 +36,9 @@ const ClozeQuestion = ({ question, updateQuestion, error }) => {
             onDrop={(e) => handleDrop(e, index)}
             onDragOver={handleDragOver}
             className="bg-gray-200 p-2 inline-block"
+            // Corrected: Add draggable attribute and dragstart event
+            draggable
+            onDragStart={(e) => handleDragStart(e, blank)}
           >
             {blank}
           </div>

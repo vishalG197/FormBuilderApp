@@ -5,12 +5,15 @@ import FormFill from '../Components/FormFill/FormFill'
 // import FormPreview from '../Components/FormPreview/FormPreview'
 import FromBuilder from '../Components/FormBuilder/FromBuilder'
 import Home from '../Components/Home'
+import QuizComponent from '../Components/FormBuilder/QuizeComponent'
 const AllRoutes = () => {
   return (
     <Routes>
        <Route path="/" element={<Home/>}/>
       <Route path="/quizecreate" element={<FromBuilder/>}/>
-     <Route path="/quize" element={<FormFill/>}/>
+     <Route path="/quize" element={<QuizComponent/>}/>
+     <Route path="/formfill/:id" element={<FormFill/>}/>
+
        {/* <Route path="/preview/id" element={<FormPreview/>}/> */}
       {/* <Route path="/history" element={<CardList/>}/> */}
     </Routes>

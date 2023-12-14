@@ -24,6 +24,7 @@ const ClozeQuestionForm = ({ updateQuestion }) => {
         text: text.trim(),
         blanks: blanks,
       };
+      console.log(formData);
       updateQuestion(formData);
       // You may want to reset the form fields after submitting
       setText("");

@@ -1,8 +1,10 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDrag, useDrop } from "react-dnd";
+import { useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-let data={
+let dummy={
   headerImage: 'https://tse2.mm.bing.net/th?id=OIP.JAQ4rlCwbALiX8vooija7QHaEK&pid=Api&P=0&h=220',
   questions: [
     {
@@ -44,13 +46,30 @@ let data={
 
 
 const FormFill = () => {
+  const { id } = useParams();
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
-
+  const [data, setData] = useState(dummy)
   const handleAnswer = (questionId, answer) => {
     setAnswers((prevAnswers) => ({ ...prevAnswers, [questionId]: answer }));
   };
+  useEffect(() => {
+    // Fetch data based on the id when the component mounts
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`https://quize-5b24.onrender.com/forms/${id}`);
+        if (!response.ok) {
+          throw new Error(`Error fetching quiz data: ${response.status}`);
+        }
+        const data = await response.json();
+        setData(data);
+      } catch (error) {
+        console.error("Error fetching quiz data:", error.message);
+      }
+    };
 
+    fetchData();
+  }, [id]); 
   const handleSubmit = () => {
     // Perform the post request with the answers here
     // For simplicity, let's just log the answers to the console
@@ -79,26 +98,8 @@ const FormFill = () => {
           <h2 className="text-2xl font-semibold mb-4">{question.data.Description}</h2>
 
           {question.type === 'categorize' && (
-            <div>
-              <p className="mb-4">Q.{question.data.Description}</p>
-              {question.data.Question.map((category, index) => (
-                <div key={index} className="mb-4">
-                  <p className="font-semibold mb-2">{category.category}</p>
-                  {/* Render items for each category */}
-                  {category.items.map((item, i) => (
-                    <label key={i} className="flex items-center mb-2">
-                      <input
-                        type="checkbox"
-                        className="form-checkbox text-blue-500"
-                        onChange={() => handleAnswer(question.id, item)}
-                      />
-                      <span className="ml-2">{item}</span>
-                    </label>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
+            <CategorizeQuestion question={question}/>
+              )}
 
           {question.type === 'cloze' && (
             <div>
@@ -158,3 +159,111 @@ const FormFill = () => {
 };
 
 export default FormFill;
+
+
+
+
+const DraggableItem = ({ item, index, moveItem, categoryIndex }) => {
+  const [, drag] = useDrag({
+    type: "CATEGORIZE_ITEM",
+    item: { index, categoryIndex },
+  });
+
+  return (
+    <div
+      ref={drag}
+      className="cursor-pointer p-2 border border-gray-300 rounded-md m-1 bg-white"
+    >
+      {item}
+    </div>
+  );
+};
+
+const DroppableArea = ({ items, onDrop, categoryIndex, categoryName }) => {
+   const [, drop] = useDrop({
+     accept: "CATEGORIZE_ITEM",
+     drop: (item) => onDrop(item, categoryIndex),
+   });
+ 
+   return (
+     <div ref={drop} className="border border-gray-300 rounded-md p-2 h-20">
+       {items?.length === 0 ? (
+         <div className="text-center text-gray-500">
+           <p className="font-bold">{categoryName}</p>
+           (Drag items here)
+         </div>
+       ) : (
+         items
+       )}
+     </div>
+   );
+ };
+ 
+
+const CategorizeQuestion = ({ question }) => {
+  const [selectedItems, setSelectedItems] = useState(
+    Array(question.data.Question?.length).fill([])
+  );
+
+  const handleDrop = (item, categoryIndex) => {
+    const newSelectedItems = [...selectedItems];
+    newSelectedItems[categoryIndex] = [
+      ...newSelectedItems[categoryIndex],
+      item.index,
+    ];
+    setSelectedItems(newSelectedItems);
+  };
+
+  const handleRemoveItem = (categoryIndex, itemIndex) => {
+    const newSelectedItems = [...selectedItems];
+    newSelectedItems[categoryIndex] = newSelectedItems[categoryIndex].filter(
+      (index) => index !== itemIndex
+    );
+    setSelectedItems(newSelectedItems);
+  };
+
+  return (
+    <div>
+      <h1>Categorize Question</h1>
+      <p className="text-lg text-align-left font-bold mb-2">
+        Q.{question.data.Description}
+      </p>
+
+      <div className="flex">
+        {question.data.Question?.map((category, categoryIndex) => (
+          <div key={categoryIndex} className="flex flex-col items-center mr-8">
+            {category.items?.map((item, itemIndex) => (
+              <DraggableItem
+                key={itemIndex}
+                item={item}
+                index={itemIndex}
+                moveItem={() => {}}
+                categoryIndex={categoryIndex}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 flex">
+        {question.data.Question?.map((category, categoryIndex) => (
+          <DroppableArea
+            key={categoryIndex}
+            items={selectedItems[categoryIndex]?.map((itemIndex) => (
+              <div
+                key={itemIndex}
+                className="p-2 border border-gray-300 rounded-md m-1 bg-blue-100 cursor-pointer"
+                onClick={() => handleRemoveItem(categoryIndex, itemIndex)}
+              >
+                <p className="font-bold mb-2">{category.category}</p>
+                {category.items[itemIndex]}
+              </div>
+            ))}
+            onDrop={handleDrop}
+            categoryIndex={categoryIndex}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
