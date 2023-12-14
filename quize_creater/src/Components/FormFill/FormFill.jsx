@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import CategoryQuestions from "../../Routes/TestComponent"
+import CategoryQuestions from "./CategoryQuestion"
 import "react-toastify/dist/ReactToastify.css";
 // let dummy={
 //   headerImage: 'https://tse2.mm.bing.net/th?id=OIP.JAQ4rlCwbALiX8vooija7QHaEK&pid=Api&P=0&h=220',
@@ -106,7 +106,12 @@ if(loading){
           {question.type === 'categorize' && (
             <CategoryQuestions question={question.data}/>
               )}
-
+<div>
+  <h1>Q.{}</h1>
+  <div>
+    <button>blank-1</button><button>blank-2</button>
+  </div>
+</div>
           {question.type === 'cloze' && (
             <div>
               <p className="mb-4">Q.{question.data.text}</p>

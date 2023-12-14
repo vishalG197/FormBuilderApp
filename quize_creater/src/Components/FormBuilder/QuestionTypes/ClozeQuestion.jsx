@@ -39,8 +39,9 @@ const ClozeQuestionForm = ({ updateQuestion }) => {
 
       <div className="mb-4">
         <label className="block mb-2">Cloze Text:</label>
-        <textarea
+        <input
           value={text}
+          placeholder="write sentence here....."
           onChange={(e) => setText(e.target.value)}
           className="border rounded p-2 w-full"
           rows="4"
@@ -53,6 +54,8 @@ const ClozeQuestionForm = ({ updateQuestion }) => {
           <input
             type="text"
             value={newBlank}
+            placeholder="word which you want to make blank"
+            style={{width: '50%'}}
             onChange={(e) => setNewBlank(e.target.value)}
             className="border rounded p-2 mr-2"
           />
