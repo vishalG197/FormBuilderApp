@@ -1,51 +1,51 @@
-// ClozeQuestion.js
+import React, { useState } from 'react';
 
-import React from "react";
+const Blank = ({ text, onDrop }) => {
+  return (
+    <div
+      onClick={onDrop}
+      className="bg-blue-500 text-white p-2 m-1 rounded cursor-pointer"
+    >
+      {text}
+    </div>
+  );
+};
 
-const ClozeQuestion = ({ question, updateQuestion, error }) => {
-  const blanks = question.data.blanks || [];
+const ClozeQuestion = ({ question }) => {
+  const [blanks, setBlanks] = useState(question.data.blanks);
 
-  const handleDragStart = (e, id) => {
-    e.dataTransfer.setData("text/plain", id);
-  };
-
-  const handleDrop = (e, index) => {
-    e.preventDefault();
-    const itemId = e.dataTransfer.getData("text/plain");
-
-    const updatedBlanks = blanks.map((blank, i) =>
-      i === index ? itemId : blank
-    );
-
-    // Corrected: Call updateQuestion with the updated blanks directly
-    updateQuestion({ ...question, data: { blanks: updatedBlanks } });
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
+  const handleDrop = (index) => {
+    return () => {
+      // Handle the drop logic here, for example, update the state or perform other actions
+      console.log(`Dropped at index ${index}`);
+    };
   };
 
   return (
-    <div className="mt-4 p-4 border rounded shadow-md">
-      <h3 className="text-lg font-bold mb-2">Cloze Question</h3>
-
-      <div>
+    <div className="p-4">
+      <h1 className="text-2xl mb-4">Q.{question.id}</h1>
+      <div className="flex flex-wrap mb-4">
         {blanks.map((blank, index) => (
-          <div
-            key={index}
-            onDrop={(e) => handleDrop(e, index)}
-            onDragOver={handleDragOver}
-            className="bg-gray-200 p-2 inline-block"
-            // Corrected: Add draggable attribute and dragstart event
-            draggable
-            onDragStart={(e) => handleDragStart(e, blank)}
-          >
-            {blank}
-          </div>
+          <Blank key={index} text={`blank-${index + 1}`} onDrop={handleDrop(index)} />
         ))}
       </div>
-
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      <div className="text-lg">
+        {question.data.text.split('___').map((part, index) => (
+          <React.Fragment key={index}>
+            {part}
+            {index < question.data.blanks.length - 1 && (
+              <div className="inline-block">
+                <button
+                  disabled
+                  className="bg-gray-300 text-gray-600 p-2 m-1 rounded cursor-not-allowed"
+                >
+                  {`blank-${index + 1}`}
+                </button>
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 };

@@ -3,8 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import CategoryQuestions from "./CategoryQuestion"
+// import CategoryQuestions from "./CategoryQuestion"
 import "react-toastify/dist/ReactToastify.css";
+// import ClozeQuestion from "../FormBuilder/QuestionTypes/ClozePreview";
 // let dummy={
 //   headerImage: 'https://tse2.mm.bing.net/th?id=OIP.JAQ4rlCwbALiX8vooija7QHaEK&pid=Api&P=0&h=220',
 //   questions: [
@@ -74,27 +75,60 @@ const FormFill = () => {
 
     fetchData();
   }, [id]); 
-  const handleSubmit = () => {
-    // Perform the post request with the answers here
-    // For simplicity, let's just log the answers to the console
-    console.log('Submitted Answers:', answers);
+  const handleSubmit = async () => {
+    try {
+      // Construct the payload for the POST request
+      const payload = {
+        formId: id, // Assuming id is the formId
+        answers: Object.entries(answers).map(([questionId, answer]) => ({
+          questionId: parseInt(questionId),
+          answer,
+        })),
+      };
 
-    // Display submission success message
-    toast.success('Quiz submitted successfully!', {
-      position: 'top-center',
-      autoClose: 3000, // Auto close the toast after 3 seconds
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
+      // Perform the POST request to submit the responses
+      const response = await fetch("https://quize-5b24.onrender.com/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    // Set the submitted state to true
-    setSubmitted(true);
+      if (!response.ok) {
+        throw new Error(`Error submitting quiz responses: ${response.status}`);
+      }
+
+      // Display submission success message
+      toast.success("Quiz submitted successfully!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      // Set the submitted state to true
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Error submitting quiz responses:", error.message);
+      // Display an error message if submission fails
+      toast.error("Error submitting quiz responses. Please try again.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
   };
 if(loading){
   return <h1>Loading....</h1>
 }
+console.log(answers);
+
   return (
     <div className="container mx-auto mt-8 p-4">
       <img src={data.headerImage} alt="Header" className="mb-8 w-full align-middle ml-77 rounded-lg shadow-lg" />
@@ -106,12 +140,7 @@ if(loading){
           {question.type === 'categorize' && (
             <CategoryQuestions question={question.data}/>
               )}
-<div>
-  <h1>Q.{}</h1>
-  <div>
-    <button>blank-1</button><button>blank-2</button>
-  </div>
-</div>
+
           {question.type === 'cloze' && (
             <div>
               <p className="mb-4">Q.{question.data.text}</p>
@@ -125,6 +154,7 @@ if(loading){
                   />
                 </div>
               ))}
+              {/* <ClozeQuestion question={question}/> */}
             </div>
           )}
 
@@ -172,104 +202,106 @@ if(loading){
 export default FormFill;
 
 
-// CategoryQuestions.js
 
+const ItemTypes = {
+  DRAGGABLE_BUTTON: "draggableButton",
+};
 
+const DraggableButton = ({ text }) => {
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.DRAGGABLE_BUTTON,
+    item: { text },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  });
 
-// const ItemTypes = {
-//   DRAGGABLE_BUTTON: 'draggableButton',
-// };
+  return (
+    <button
+      ref={drag}
+      className={`bg-blue-500 text-white p-2 m-2 cursor-pointer ${
+        isDragging ? "opacity-50" : ""
+      }`}
+    >
+      {text}
+    </button>
+  );
+};
+const CategoryQuestions = ({ question }) => {
+  const [categories, setCategories] = useState({
+    category1: [],
+    category2: [],
+  });
+  console.log(categories);
+  const initialItems = question.Question?.map((q) => q.items).flat();
+  const [availableButtons, setAvailableButtons] = useState(initialItems);
 
-// const DraggableButton = ({ text }) => {
-//   const [{ isDragging }, drag] = useDrag({
-//     type: ItemTypes.DRAGGABLE_BUTTON,
-//     item: { text },
-//     collect: (monitor) => ({
-//       isDragging: !!monitor.isDragging(),
-//     }),
-//   });
+  const moveButton = (buttonText, toCategory) => {
+    // Ensure the category array exists
+    const categoryArray = categories[toCategory] || [];
 
-//   return (
-//     <button
-//       ref={drag}
-//       className={`bg-blue-500 text-white p-2 m-2 cursor-pointer ${
-//         isDragging ? 'opacity-50' : ''
-//       }`}
-//     >
-//       {text}
-//     </button>
-//   );
-// };
+    // Check if the button is already in the category
+    if (!categoryArray.includes(buttonText)) {
+      const updatedCategories = {
+        ...categories,
+        [toCategory]: [...categoryArray, buttonText],
+      };
 
-// const Category = ({ category, items, onDrop }) => {
-//   const [, drop] = useDrop({
-//     accept: ItemTypes.DRAGGABLE_BUTTON,
-//     drop: (item) => onDrop(item.text, category),
-//   });
+      setCategories(updatedCategories);
 
-//   return (
-//     <div className="m-4">
-//       <h2 className="text-lg font-bold mb-2">{category}</h2>
-//       <div ref={drop} className="flex space-x-4" style={{ minHeight: '200px' }}>
-//         {items?.map((item, index) => (
-//           <div key={index}>{item}</div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
+      // Remove the button from the available buttons list
+      const updatedButtons = availableButtons.filter(
+        (button) => button !== buttonText
+      );
+      setAvailableButtons(updatedButtons);
+    } else {
+      // Handle the case where the button couldn't be dropped
+      console.log(`Button "${buttonText}" already in category "${toCategory}"`);
+      // You can update the state or display a message as needed
+    }
+  };
+  const [, div1Drop] = useDrop({
+    accept: ItemTypes.DRAGGABLE_BUTTON,
+    drop: (item) => moveButton(item.text, "category1"),
+  });
 
-// const CategoryQuestions = ({ question }) => {
-//   const [categories, setCategories] = useState({
-//     category1: [],
-//     category2: [],
-//   });
+  const [, div2Drop] = useDrop({
+    accept: ItemTypes.DRAGGABLE_BUTTON,
+    drop: (item) => moveButton(item.text, "category2"),
+  });
 
-//   const { data } = question;
-//   const initialButtons = data.Question ? data.Question.reduce((acc, category) => acc.concat(category.items), []) : [];
-//   const [availableButtons, setAvailableButtons] = useState(initialButtons);
-
-//   const moveButton = (buttonText, toCategory) => {
-//     const updatedCategories = {
-//       ...categories,
-//       [toCategory]: [...categories[toCategory], buttonText],
-//     };
-
-//     setCategories(updatedCategories);
-
-//     // Remove the button from the available buttons list
-//     const updatedButtons = availableButtons.filter((button) => button !== buttonText);
-//     setAvailableButtons(updatedButtons);
-//   };
-
-//   const [, div1Drop] = useDrop({
-//     accept: ItemTypes.DRAGGABLE_BUTTON,
-//     drop: (item) => moveButton(item.text, 'category1'),
-//   });
-
-//   const [, div2Drop] = useDrop({
-//     accept: ItemTypes.DRAGGABLE_BUTTON,
-//     drop: (item) => moveButton(item.text, 'category2'),
-//   });
-
-//   return (
-//     <div>
-//       <h2>Q.{data.QuestionDescription}</h2>
-//       <div>
-//         {availableButtons.map((buttonText) => (
-//           <DraggableButton key={buttonText} text={buttonText} />
-//         ))}
-//       </div>
-//       <div className="flex">
-//         {data.Question?.map((category) => (
-//           <Category
-//             key={category.category}
-//             category={category.category}
-//             items={categories[category.category]}
-//             onDrop={moveButton}
-//           />
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
+  return (
+    <div>
+      <h2>Q.{question.Description}</h2>
+      <div>
+        {availableButtons?.map((buttonText) => (
+          <DraggableButton key={buttonText} text={buttonText} />
+        ))}
+      </div>
+      <div className="flex">
+      <div id="div-1" className="m-4 p-4 border flex-1"  style={{ height: "300px" }} ref={div1Drop}>
+              <h1>{question.Question[0].category}</h1>
+              {categories.category1.map((buttonText, index) => (
+                <div key={index}>{buttonText}</div>
+              ))}
+            </div>
+            <div id="div-2" className="m-4 p-4 border flex-1"  style={{ height: "300px" }} ref={div2Drop}>
+              <h1>{question.Question[1].category}</h1>
+              {categories.category2.map((buttonText, index) => (
+                <div key={index}>{buttonText}</div>
+              ))}
+            </div>
+        {/* {question.Question?.map((category, index) => (
+          <div
+            key={index}
+            className={`m-4 p-4 border flex-1`}
+            style={{ height: "300px" }}
+            ref={index === 0 ? div1Drop : div2Drop}
+          >
+            
+          </div>
+        ))} */}
+      </div>
+    </div>
+  );
+};
