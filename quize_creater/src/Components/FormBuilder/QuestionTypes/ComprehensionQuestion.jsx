@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 const ComprehensionQuestion = ({ updateQuestion }) => {
@@ -9,35 +8,30 @@ const ComprehensionQuestion = ({ updateQuestion }) => {
   const [submitted, setSubmitted] = useState(false);
 
   const addQuestion = () => {
-   
     setQuestions([...questions, ""]);
     setOptions([...options, ["", "", "", ""]]);
     setCorrectAnswers([...correctAnswers, ""]);
   };
 
   const handleQuestionChange = (index, value) => {
-   
     const updatedQuestions = [...questions];
     updatedQuestions[index] = value;
     setQuestions(updatedQuestions);
   };
 
   const handleOptionChange = (questionIndex, optionIndex, value) => {
-   
     const updatedOptions = [...options];
     updatedOptions[questionIndex][optionIndex] = value;
     setOptions(updatedOptions);
   };
 
   const handleCorrectAnswerChange = (questionIndex, value) => {
-    
     const updatedCorrectAnswers = [...correctAnswers];
     updatedCorrectAnswers[questionIndex] = value;
     setCorrectAnswers(updatedCorrectAnswers);
   };
 
   const handleSubmit = async () => {
-   
     const postData = {
       comprehension,
       questions: questions.map((question, index) => ({
@@ -48,8 +42,7 @@ const ComprehensionQuestion = ({ updateQuestion }) => {
     };
 
     try {
-    if (questions) {
-       
+      if (questions) {
         console.log("Submitted Details:", postData);
         updateQuestion({
           type: "comprehension",
@@ -72,83 +65,83 @@ const ComprehensionQuestion = ({ updateQuestion }) => {
   };
 
   return (
-    <div>
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Quiz Builder</h1>
-        <div className="mb-4">
-          <label className="block">
-            Comprehension:
-            <input
-              type="text"
-              value={comprehension}
-              onChange={(e) => setComprehension(e.target.value)}
-              className="mt-1 p-2 w-full border rounded-md"
-            />
-          </label>
-        </div>
-        <div>
-          {questions.map((question, questionIndex) => (
-            <div key={questionIndex} className="mb-4">
-              <label className="block">
-                Question {questionIndex + 1}:
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Quiz Builder</h1>
+      <div className="mb-4">
+        <label className="block">
+          Comprehension:
+          <textarea
+            value={comprehension}
+            onChange={(e) => setComprehension(e.target.value)}
+            placeholder="Enter the comprehension passage..."
+            className="mt-1 p-2 w-full border rounded-md"
+          />
+        </label>
+      </div>
+      <div>
+        {questions.map((question, questionIndex) => (
+          <div key={questionIndex} className="mb-4">
+            <label className="block">
+              Question {questionIndex + 1}:
+              <input
+                type="text"
+                value={question}
+                onChange={(e) =>
+                  handleQuestionChange(questionIndex, e.target.value)
+                }
+                placeholder={`Enter question ${questionIndex + 1}...`}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </label>
+            <br />
+            {options[questionIndex].map((option, optionIndex) => (
+              <label key={optionIndex} className="block">
+                <input
+                  type="radio"
+                  name={`question${questionIndex}`}
+                  value={option}
+                  checked={correctAnswers[questionIndex] === option}
+                  onChange={() =>
+                    handleCorrectAnswerChange(questionIndex, option)
+                  }
+                  className="mr-2"
+                />
+                Option {optionIndex + 1}:
                 <input
                   type="text"
-                  value={question}
+                  value={option}
                   onChange={(e) =>
-                    handleQuestionChange(questionIndex, e.target.value)
+                    handleOptionChange(
+                      questionIndex,
+                      optionIndex,
+                      e.target.value
+                    )
                   }
-                  className="mt-1 p-2 w-full border rounded-md"
+                  placeholder={`Enter option ${optionIndex + 1}...`}
+                  className="mt-1 p-2 border rounded-md"
                 />
               </label>
-              <br />
-              {options[questionIndex].map((option, optionIndex) => (
-                <label key={optionIndex} className="block">
-                  <input
-                    type="radio"
-                    name={`question${questionIndex}`}
-                    value={option}
-                    checked={correctAnswers[questionIndex] === option}
-                    onChange={() =>
-                      handleCorrectAnswerChange(questionIndex, option)
-                    }
-                    className="mr-2"
-                  />
-                  Option {optionIndex + 1}:
-                  <input
-                    type="text"
-                    value={option}
-                    onChange={(e) =>
-                      handleOptionChange(
-                        questionIndex,
-                        optionIndex,
-                        e.target.value
-                      )
-                    }
-                    className="mt-1 p-2 border rounded-md"
-                  />
-                </label>
-              ))}
-              <br />
-            </div>
-          ))}
-        </div>
-        <div className="mb-4">
-          <button
-            onClick={addQuestion}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Add Question
-          </button>
-        </div>
-        <div>
-          <button
-            onClick={handleSubmit}
-            disabled={submitted}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Submit
-          </button>
-        </div>
+            ))}
+            <br />
+          </div>
+        ))}
+      </div>
+      <div className="mb-4">
+        <button
+          onClick={addQuestion}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Add Question
+        </button>
+      </div>
+      <div>
+        <button
+          onClick={handleSubmit}
+          disabled={submitted}
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Submit
+        </button>
       </div>
       {submitted && <p>Your details are submitted.</p>}
     </div>

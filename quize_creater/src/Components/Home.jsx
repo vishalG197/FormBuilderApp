@@ -15,12 +15,12 @@ const Home = () => {
       <div className="md:w-1/2 ">
         <Link to="/quizecreate">
           <button className="bg-purple-500 text-white font-bold py-4 px-8 mb-2  md:mb-0 md:mr-2 w-full md:w-1/2 rounded">
-            Create Quiz
+            Create form
           </button>
         </Link>
         <Link to="/quize">
           <button className="bg-purple-500 text-white my-8 font-bold py-4 px-8 w-full md:w-1/2 rounded">
-            Solve Quiz
+            Solve quetions
           </button>
         </Link>
 

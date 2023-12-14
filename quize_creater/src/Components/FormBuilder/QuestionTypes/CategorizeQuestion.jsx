@@ -87,62 +87,68 @@ const CategoryQuestion = ({ updateQuestion }) => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <h1>Categorized Question</h1>
-      <div>
-        <div>
-          <label>Description:</label>
-          <input
-            type="text"
-            value={description}
-            onChange={handleDescriptionChange}
-            className="mt-1 p-2 border rounded-md"
-          />
-        </div>
+      <div className="flex flex-col  p-4">
+        <h1 className="text-2xl font-bold mb-4">Categorized Question</h1>
 
-        <div>
-          <h3>Step 2: Categories</h3>
-
-          {categories.map((category, index) => (
-            <Category
-              key={index}
-              index={index}
-              category={category}
-              onCategoryChange={handleCategoryChange}
-              onCategoryDelete={handleCategoryDelete}
-              onCategoryOrderChange={handleCategoryOrderChange}
-              updateQuestion={updateQuestion}
+        <div className="flex-grow flex flex-col overflow-y-auto">
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Description:
+            </label>
+            <input
+              type="text"
+              placeholder="description of the category and item relation...."
+              value={description}
+              onChange={handleDescriptionChange}
+              className="mt-1 p-2 border rounded-md w-full"
             />
-          ))}
-          <button
-            onClick={handleCategoryAdd}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Add Category
-          </button>
-        </div>
+          </div>
 
-        <div>
-          <h3>Step 3: Items</h3>
+          <div className="mb-4">
+            <h3 className="text-lg font-bold mb-2">Step 2: Categories</h3>
 
-          {items.map((item, index) => (
-            <Item
-              key={index}
-              index={index}
-              item={item}
-              categories={categories}
-              onItemChange={handleItemChange}
-              onItemDelete={handleItemDelete}
-              onCategorySelect={handleCategorySelect}
-              onItemOrderChange={handleItemOrderChange}
-              updateQuestion={updateQuestion}
-            />
-          ))}
-          <button
-            onClick={handleItemAdd}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Add Item
-          </button>
+            {categories.map((category, index) => (
+              <Category
+                key={index}
+                index={index}
+                category={category}
+                onCategoryChange={handleCategoryChange}
+                onCategoryDelete={handleCategoryDelete}
+                onCategoryOrderChange={handleCategoryOrderChange}
+                updateQuestion={updateQuestion}
+              />
+            ))}
+            <button
+              onClick={handleCategoryAdd}
+              className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+            >
+              Add Category
+            </button>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="text-lg font-bold mb-2">Step 3: Items</h3>
+
+            {items.map((item, index) => (
+              <Item
+                key={index}
+                index={index}
+                item={item}
+                categories={categories}
+                onItemChange={handleItemChange}
+                onItemDelete={handleItemDelete}
+                onCategorySelect={handleCategorySelect}
+                onItemOrderChange={handleItemOrderChange}
+                updateQuestion={updateQuestion}
+              />
+            ))}
+            <button
+              onClick={handleItemAdd}
+              className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+            >
+              Add Item
+            </button>
+          </div>
         </div>
 
         <div>
@@ -188,16 +194,18 @@ const Category = ({
     <div
       ref={(node) => drag(drop(node))}
       style={{ opacity: isDragging ? 0.5 : 1 }}
+      className="flex items-center justify-between mb-2"
     >
       <input
         type="text"
+        placeholder="add category"
         value={category.category}
         onChange={(e) => onCategoryChange(index, e.target.value)}
-        className="mt-1 p-2 border rounded-md"
+        className="p-2 border rounded-md flex-grow mr-2 w-1/2"
       />
       <button
         onClick={() => onCategoryDelete(index)}
-        className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+        className="bg-red-500 text-white px-2 py-1 rounded"
       >
         X
       </button>
@@ -237,17 +245,19 @@ const Item = ({
     <div
       ref={(node) => drag(drop(node))}
       style={{ opacity: isDragging ? 0.5 : 1 }}
+      className="flex items-center justify-between mb-2"
     >
       <input
         type="text"
         value={item.name}
+        placeholder="add Items"
         onChange={(e) => onItemChange(index, e.target.value)}
-        className="mt-1 p-2 border rounded-md"
+        className="p-2 border rounded-md flex-grow mr-2"
       />
       <select
         value={item.category}
         onChange={(e) => onCategorySelect(index, e.target.value)}
-        className="mt-1 p-2 border rounded-md"
+        className="p-2 border rounded-md"
       >
         <option value="">select category</option>
         {categories.map((category, index) => (
@@ -258,7 +268,7 @@ const Item = ({
       </select>
       <button
         onClick={() => onItemDelete(index)}
-        className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+        className="bg-red-500 text-white px-2 py-1 rounded"
       >
         X
       </button>
