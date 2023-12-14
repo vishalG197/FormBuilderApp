@@ -34,7 +34,7 @@ const QuizComponent = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Math Quiz</h1>
+      <h1 className="text-2xl font-bold mb-4"> Quiz</h1>
       {quizData?.map((quiz) => (
         <div key={quiz.id} className="bg-white p-4 rounded-md shadow-md mb-4">
           <img src={quiz.headerImage} alt="Quiz Header" className="mx-auto mb-8 w-full align-middle rounded-lg shadow-lg"  />
@@ -48,44 +48,6 @@ const QuizComponent = () => {
         </div>
       ))}
 
-      {currentQuiz && (
-        <div className="bg-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-4">{currentQuiz.topic}</h2>
-          {currentQuiz.questions.map((question) => (
-            <div key={question.id} className="mb-4">
-              {question.type === "categorize" && (
-                // Render Categorize Question UI (you can reuse your existing components)
-                <div>
-                  <h3>{question.data.Description}</h3>
-                  {/* Render the Categorize Question UI */}
-                </div>
-              )}
-
-              {question.type === "cloze" && (
-                // Render Cloze Question UI (you can reuse your existing components)
-                <div>
-                  <h3>{question.data.text}</h3>
-                  {/* Render the Cloze Question UI */}
-                </div>
-              )}
-
-              {question.type === "comprehension" && (
-                // Render Comprehension Question UI (you can reuse your existing components)
-                <div>
-                  <h3>{question.data.passage}</h3>
-                  {/* Render the Comprehension Question UI */}
-                </div>
-              )}
-            </div>
-          ))}
-          <button
-            onClick={() => submitResponse({ quizId: currentQuiz.id, responses })}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Submit Responses
-          </button>
-        </div>
-      )}
     </div>
   );
 };

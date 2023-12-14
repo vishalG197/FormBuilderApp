@@ -226,7 +226,7 @@ console.log(form)
         </button>
       </div>
 
-      {isLoading && <div className="text-blue-500 mt-2">Loading...</div>}
+      {/* {isLoading && <div className="text-blue-500 mt-2">Loading...</div>}
 
       {successMessage && (
         <div className="text-green-600 mt-2">{successMessage}</div>
@@ -236,7 +236,7 @@ console.log(form)
         <h3>Loading</h3>
       ) : (
         <FormPreview form={form} />
-      )}
+      )} */}
     </div>
   );
 };
